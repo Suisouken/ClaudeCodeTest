@@ -1,0 +1,74 @@
+# Gmail Inbox Organizer - Configuration
+
+# Archive emails older than this many days (0 = disabled)
+archive_older_than_days: 30
+
+# Labels to create if they don't exist
+labels:
+  - Newsletter
+  - Receipt
+  - Social
+  - Work
+  - GitHub
+  - Shopping
+
+# Rules for auto-labeling
+# Each rule matches emails and applies a label (and optionally archives them)
+rules:
+  - name: "Newsletters"
+    label: "Newsletter"
+    match:
+      subject_keywords:
+        - "unsubscribe"
+        - "newsletter"
+        - "weekly digest"
+        - "monthly update"
+      from_domains: []
+    archive: false
+
+  - name: "Receipts & Orders"
+    label: "Receipt"
+    match:
+      subject_keywords:
+        - "receipt"
+        - "your order"
+        - "order confirmation"
+        - "invoice"
+        - "payment confirmation"
+      from_domains: []
+    archive: false
+
+  - name: "GitHub Notifications"
+    label: "GitHub"
+    match:
+      subject_keywords:
+        - "pull request"
+        - "issue"
+        - "pushed to"
+      from_domains:
+        - "github.com"
+        - "notifications@github.com"
+    archive: false
+
+  - name: "Social Notifications"
+    label: "Social"
+    match:
+      subject_keywords: []
+      from_domains:
+        - "twitter.com"
+        - "facebook.com"
+        - "linkedin.com"
+        - "instagram.com"
+    archive: true
+
+  - name: "Shopping"
+    label: "Shopping"
+    match:
+      subject_keywords:
+        - "sale"
+        - "% off"
+        - "deal"
+        - "limited time"
+        - "special offer"
+      from_domains: []
+    archive: false
