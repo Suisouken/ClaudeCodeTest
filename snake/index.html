@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>ヘビゲーム</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐍</text></svg>">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; user-select: none; }
+  html, body {
+    height: 100%;
+    background: radial-gradient(circle at 50% 0%, #1d3b2a, #0c1a12);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo, sans-serif;
+    color: #d7f5e0;
+    overflow: hidden;
+    touch-action: none;
+  }
+  #app {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 10px;
+  }
+  #hud {
+    width: 100%;
+    max-width: 460px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .panel {
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(120,220,160,0.35);
+    border-radius: 12px;
+    padding: 6px 16px;
+    min-width: 92px;
+    text-align: center;
+  }
+  .label { font-size: 11px; letter-spacing: 2px; opacity: 0.65; }
+  .value { font-size: 26px; font-weight: 800; line-height: 1.1; color: #7CFC9A; }
+  #title { font-size: 18px; font-weight: 800; letter-spacing: 1px; display: flex; align-items: center; gap: 6px; }
+  #stage-wrap {
+    position: relative;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5), inset 0 0 0 3px rgba(120,220,160,0.4);
+    background: #0e2018;
+  }
+  canvas { display: block; }
+  #overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(8,20,14,0.86);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    text-align: center;
+    padding: 24px;
+    backdrop-filter: blur(2px);
+  }
+  #overlay.hidden { display: none; }
+  #overlay h1 { font-size: 30px; color: #7CFC9A; }
+  #overlay p { font-size: 15px; opacity: 0.85; line-height: 1.6; }
+  button.btn {
+    margin-top: 4px;
+    font: inherit;
+    font-weight: 800;
+    font-size: 18px;
+    color: #0c1a12;
+    background: #7CFC9A;
+    border: none;
+    border-radius: 12px;
+    padding: 12px 30px;
+    cursor: pointer;
+    box-shadow: 0 4px 0 #3fa860;
+    transition: transform .05s, box-shadow .05s;
+  }
+  button.btn:active { transform: translateY(3px); box-shadow: 0 1px 0 #3fa860; }
+  #dpad {
+    display: grid;
+    grid-template-columns: repeat(3, 64px);
+    grid-template-rows: repeat(3, 64px);
+    gap: 8px;
+    margin-top: 4px;
+  }
+  .dbtn {
+    border: 1px solid rgba(120,220,160,0.4);
+    background: rgba(255,255,255,0.06);
+    border-radius: 14px;
+    color: #7CFC9A;
+    font-size: 26px;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+  }
+  .dbtn:active { background: rgba(124,252,154,0.25); }
+  #up { grid-area: 1 / 2; }
+  #left { grid-area: 2 / 1; }
+  #pause { grid-area: 2 / 2; font-size: 20px; }
+  #right { grid-area: 2 / 3; }
+  #down { grid-area: 3 / 2; }
+  #hint { font-size: 12px; opacity: 0.6; height: 16px; text-align: center; }
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="hud">
+    <div id="title">🐍 ヘビゲーム</div>
+    <div class="panel">
+      <div class="label">SCORE</div>
+      <div class="value" id="score">0</div>
+    </div>
+    <div class="panel">
+      <div class="label">BEST</div>
+      <div class="value" id="best">0</div>
+    </div>
+  </div>
+
+  <div id="stage-wrap">
+    <canvas id="game"></canvas>
+    <div id="overlay">
+      <h1 id="ov-title">🐍 ヘビゲーム</h1>
+      <p id="ov-msg">エサ🍎を食べて伸ばそう。<br>壁か自分にぶつかるとゲームオーバー。</p>
+      <button class="btn" id="start">スタート</button>
+    </div>
+  </div>
+
+  <div id="dpad">
+    <div class="dbtn" id="up">▲</div>
+    <div class="dbtn" id="left">◀</div>
+    <div class="dbtn" id="pause">⏸</div>
+    <div class="dbtn" id="right">▶</div>
+    <div class="dbtn" id="down">▼</div>
+  </div>
+
+  <div id="hint">スワイプ / 矢印キー / WASD で操作・スペースで一時停止</div>
+</div>
+
+<script src="game.js"></script>
+</body>
+</html>
