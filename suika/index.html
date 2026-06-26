@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>スイカゲーム</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍉</text></svg>">
+<style>
+  :root {
+    --bg1: #ffe7a0;
+    --bg2: #ffd166;
+    --frame: #b5651d;
+    --frame-dark: #8a4a12;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    height: 100%;
+    background: linear-gradient(160deg, #fff3c4, #ffd166);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo, sans-serif;
+    color: #5a3a12;
+    overflow: hidden;
+    touch-action: none;
+  }
+  #app {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 8px;
+  }
+  #hud {
+    width: 100%;
+    max-width: 420px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .panel {
+    background: rgba(255,255,255,0.65);
+    border: 2px solid var(--frame);
+    border-radius: 14px;
+    padding: 6px 14px;
+    box-shadow: 0 3px 0 rgba(138,74,18,0.35);
+  }
+  .label { font-size: 11px; opacity: 0.75; letter-spacing: 1px; }
+  .value { font-size: 24px; font-weight: 800; line-height: 1; }
+  #stage-wrap {
+    position: relative;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(138,74,18,0.35), inset 0 0 0 6px var(--frame);
+    background: linear-gradient(180deg, #fff7e0, #ffe9b0);
+  }
+  canvas { display: block; }
+  #next {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  #next-fruit {
+    width: 40px; height: 40px;
+    display: grid; place-items: center;
+    font-size: 26px;
+  }
+  #overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(90,58,18,0.78);
+    color: #fff;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    text-align: center;
+    padding: 20px;
+    backdrop-filter: blur(2px);
+  }
+  #overlay.show { display: flex; }
+  #overlay h1 { font-size: 34px; }
+  #overlay p { font-size: 16px; opacity: 0.9; }
+  button.btn {
+    margin-top: 6px;
+    font: inherit;
+    font-weight: 800;
+    font-size: 18px;
+    color: #fff;
+    background: #e76f51;
+    border: none;
+    border-radius: 12px;
+    padding: 12px 28px;
+    cursor: pointer;
+    box-shadow: 0 4px 0 #b5482f;
+    transition: transform .05s, box-shadow .05s;
+  }
+  button.btn:active { transform: translateY(3px); box-shadow: 0 1px 0 #b5482f; }
+  #hint { font-size: 12px; opacity: 0.7; height: 16px; }
+  #evolve {
+    width: 100%;
+    max-width: 420px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    justify-content: center;
+    font-size: 18px;
+    opacity: 0.85;
+  }
+  #evolve span { line-height: 1; }
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="hud">
+    <div class="panel">
+      <div class="label">SCORE</div>
+      <div class="value" id="score">0</div>
+    </div>
+    <div class="panel">
+      <div class="label">BEST</div>
+      <div class="value" id="best">0</div>
+    </div>
+    <div class="panel" id="next">
+      <div>
+        <div class="label">NEXT</div>
+        <div class="value" style="font-size:14px;" id="next-name">-</div>
+      </div>
+      <div id="next-fruit">🍒</div>
+    </div>
+  </div>
+
+  <div id="stage-wrap">
+    <canvas id="game"></canvas>
+    <div id="overlay">
+      <h1 id="ov-title">ゲームオーバー</h1>
+      <p id="ov-msg">スコア: 0</p>
+      <button class="btn" id="restart">もう一度あそぶ</button>
+    </div>
+  </div>
+
+  <div id="hint">タップ / クリックでフルーツを落とす</div>
+  <div id="evolve">
+    <span>🍒</span>→<span>🍓</span>→<span>🍇</span>→<span>🍊</span>→<span>🍎</span>→<span>🍐</span>→<span>🍑</span>→<span>🍍</span>→<span>🥥</span>→<span>🍈</span>→<span>🍉</span>
+  </div>
+</div>
+
+<script src="matter.min.js"></script>
+<script src="game.js"></script>
+</body>
+</html>
