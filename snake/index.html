@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>ヘビゲーム</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐍</text></svg>">
 <style>
@@ -50,7 +50,7 @@
     box-shadow: 0 10px 30px rgba(0,0,0,0.5), inset 0 0 0 3px rgba(120,220,160,0.4);
     background: #0e2018;
   }
-  canvas { display: block; }
+  canvas { display: block; touch-action: none; }
   #overlay {
     position: absolute;
     inset: 0;
@@ -69,6 +69,7 @@
   #overlay p { font-size: 15px; opacity: 0.85; line-height: 1.6; }
   button.btn {
     margin-top: 4px;
+    touch-action: manipulation;
     font: inherit;
     font-weight: 800;
     font-size: 18px;
@@ -98,6 +99,7 @@
     display: grid;
     place-items: center;
     cursor: pointer;
+    touch-action: manipulation; /* iOSのダブルタップ拡大を無効化 */
   }
   .dbtn:active { background: rgba(124,252,154,0.25); }
   #up { grid-area: 1 / 2; }

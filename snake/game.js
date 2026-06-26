@@ -35,7 +35,7 @@
   }
 
   // --- 状態 ---
-  let snake, dir, nextDir, food, score, best, alive, paused, started, timer;
+  let snake, dir, nextDir, food, score, best, alive, paused, started, timer, waitingFirstMove;
   best = Number(localStorage.getItem('snake_best') || 0);
   bestEl.textContent = best;
 
@@ -52,6 +52,7 @@
     score = 0;
     alive = true;
     paused = false;
+    waitingFirstMove = true; // 最初の入力があるまでヘビは動かさない
     scoreEl.textContent = '0';
     placeFood();
   }
@@ -75,7 +76,7 @@
 
   function scheduleTick() {
     clearTimeout(timer);
-    if (!alive || paused || !started) return;
+    if (!alive || paused || !started || waitingFirstMove) return;
     timer = setTimeout(tick, currentSpeed());
   }
 
@@ -160,6 +161,20 @@
       ctx.fill();
     }
 
+    // 開始待ち（最初の入力待ち）のガイド表示
+    if (started && alive && !paused && waitingFirstMove) {
+      ctx.save();
+      ctx.fillStyle = 'rgba(124,252,154,0.95)';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.font = `bold ${Math.max(13, Math.floor(cell * 0.95))}px sans-serif`;
+      ctx.fillText('スワイプ / キーで開始', w / 2, h * 0.33);
+      ctx.font = `${Math.max(11, Math.floor(cell * 0.7))}px sans-serif`;
+      ctx.fillStyle = 'rgba(215,245,224,0.85)';
+      ctx.fillText('好きな方向へ', w / 2, h * 0.33 + cell * 1.3);
+      ctx.restore();
+    }
+
     void eo;
   }
 
@@ -188,7 +203,7 @@
     started = true;
     overlay.classList.add('hidden');
     draw();
-    scheduleTick();
+    // 最初の入力を待つので、まだ tick は始めない（開始直後の事故死を防ぐ）
   }
 
   function gameOver() {
@@ -229,6 +244,15 @@
   // --- 入力 ---
   function setDir(x, y) {
     if (!started || !alive || paused) return;
+    // 最初の入力でヘビが動き出す（どの方向でもOK＝開始直後に死なない）
+    if (waitingFirstMove) {
+      waitingFirstMove = false;
+      dir = { x, y };
+      nextDir = { x, y };
+      draw();
+      scheduleTick();
+      return;
+    }
     // 逆方向には進めない
     if (x === -dir.x && y === -dir.y) return;
     // 同フレームで複数回入力されても、直前方向の反対は無効
@@ -282,6 +306,9 @@
   });
 
   window.addEventListener('resize', computeSize);
+
+  // iOS Safari のダブルタップ拡大を抑止（ピンチ操作は残すので拡大に詰まらない）
+  document.addEventListener('dblclick', (e) => e.preventDefault(), { passive: false });
 
   // 初期化
   reset();
