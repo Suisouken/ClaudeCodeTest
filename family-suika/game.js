@@ -24,6 +24,17 @@
   // 落とせるのは小さめの段階だけ（index 0..4）
   const DROPPABLE_MAX = 4;
 
+  // --- デフォルトの家族写真（リポジトリ同梱、小さい順に割り当て） ---
+  // 設定画面でアップロードした写真があればそちらが優先される。
+  const DEFAULT_PHOTOS = [
+    'photos/face2_boy_sunglasses.jpg', // No.1
+    'photos/face1_boy_cap.jpg',        // No.2
+    'photos/face3_girl.jpg',           // No.3
+    'photos/face5_woman.jpg',          // No.4
+    'photos/face4_man.jpg',            // No.5
+    null, null, null, null, null, null,
+  ];
+
   // --- 写真・名前の保存（localStorage） ---
   const PHOTO_KEY = 'family_suika_photos_v1';
   const NAME_KEY = 'family_suika_names_v1';
@@ -36,18 +47,27 @@
     if (typeof names[i] !== 'string' || !names[i]) names[i] = `レベル${i + 1}`;
   }
 
+  // アップロード写真（dataURL）＞ デフォルト写真 ＞ なし
+  function photoSrc(i) {
+    return photoData[i] || DEFAULT_PHOTOS[i] || null;
+  }
+
   const photoImgs = new Array(N).fill(null);
-  function setPhoto(i, dataUrl) {
-    photoData[i] = dataUrl;
-    if (dataUrl) {
+  function reloadPhotoImg(i) {
+    const src = photoSrc(i);
+    if (src) {
       const img = new Image();
-      img.src = dataUrl;
+      img.src = src;
       photoImgs[i] = img;
     } else {
       photoImgs[i] = null;
     }
   }
-  photoData.forEach((d, i) => { if (d) setPhoto(i, d); });
+  function setPhoto(i, dataUrl) {
+    photoData[i] = dataUrl;
+    reloadPhotoImg(i);
+  }
+  for (let i = 0; i < N; i++) reloadPhotoImg(i);
 
   function savePhotos() {
     try {
@@ -150,10 +170,10 @@
 
   function updateNextUI() {
     nextNameEl.textContent = names[nextIndex];
-    if (photoReady(nextIndex)) {
+    if (photoSrc(nextIndex)) {
       nextFaceEl.innerHTML = '';
       const img = document.createElement('img');
-      img.src = photoData[nextIndex];
+      img.src = photoSrc(nextIndex);
       nextFaceEl.appendChild(img);
     } else {
       nextFaceEl.textContent = TIERS[nextIndex].emoji;
@@ -167,9 +187,9 @@
     for (let i = 0; i < N; i++) {
       const chip = document.createElement('span');
       chip.className = 'chip';
-      if (photoReady(i) || photoData[i]) {
+      if (photoSrc(i)) {
         const img = document.createElement('img');
-        img.src = photoData[i];
+        img.src = photoSrc(i);
         chip.appendChild(img);
       } else {
         chip.textContent = TIERS[i].emoji;
@@ -520,10 +540,10 @@
       num.textContent = `No.${i + 1}` + (i === N - 1 ? '（いちばん大きい）' : '');
 
       const face = document.createElement('div');
-      face.className = 'face' + (photoData[i] ? ' has-photo' : '');
-      if (photoData[i]) {
+      face.className = 'face' + (photoSrc(i) ? ' has-photo' : '');
+      if (photoSrc(i)) {
         const img = document.createElement('img');
-        img.src = photoData[i];
+        img.src = photoSrc(i);
         face.appendChild(img);
       } else {
         face.textContent = TIERS[i].emoji;
@@ -561,7 +581,7 @@
       if (photoData[i]) {
         const clear = document.createElement('button');
         clear.className = 'clear';
-        clear.textContent = '写真を消す';
+        clear.textContent = DEFAULT_PHOTOS[i] ? '元の写真に戻す' : '写真を消す';
         clear.addEventListener('click', () => {
           setPhoto(i, null);
           savePhotos();
@@ -595,8 +615,8 @@
   updateEvolveUI();
   preparePending();
 
-  // 写真が1枚もなければ最初に設定画面を開く
-  if (!photoData.some(Boolean)) {
+  // 写真が1枚もなければ最初に設定画面を開く（デフォルト写真があれば開かない）
+  if (!photoData.some(Boolean) && !DEFAULT_PHOTOS.some(Boolean)) {
     openSetup();
   }
 })();
